@@ -1,0 +1,88 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+
+        # Creating UMS custom user provider.
+        # @dev1 -> Ore Richard
+        ums_provider:
+            entity:
+                class: 'App\Entity\User'
+                property: 'email'
+
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+
+
+        # Added API firewalls.
+        # @dev1 Ore Richard
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false # can be omitted as its default value
+            provider: ums_provider
+
+        # Added OAuth token firewalls.
+        # @dev1 Ore Richard
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+
+
+        # Added OAuth authorization firewalls.
+        # @dev1 Ore Richard
+        oauth_authorize:
+            pattern:    ^/oauth/v2/auth
+            form_login:
+                provider: ums_provider
+                check_path: /oauth/v2/auth_login_check
+                login_path: /oauth/v2/auth_login
+                use_referer: true
+
+
+
+        main:
+            pattern: ^/
+            form_login:
+                provider: ums_provider
+                csrf_token_generator: security.csrf.token_manager
+            logout:       true
+            anonymous: true
+            guard:
+                authenticators:
+                    - App\Security\LoginAuthenticator
+
+
+          # activate different ways to authenticate
+
+            # http_basic: true
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: true
+            # https://symfony.com/doc/current/security/form_login_setup.html
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/documentation, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
+        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/profile, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/admin, roles: ROLE_USER }
+        - { path: ^/superAdmin, roles: ROLE_ADMIN }
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+    encoders:
+        App\Entity\User: bcrypt
+
+

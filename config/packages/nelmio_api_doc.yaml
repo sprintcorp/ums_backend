@@ -1,0 +1,21 @@
+nelmio_api_doc:
+    documentation:
+        host: localhost:8000/
+        schemes: [http, https]
+        info:
+            title: USER MANAGEMENT API SERVICES
+            description: welcome to user mangement services consisting on various endpoints.
+            version: 1.0.0
+        securityDefinitions:
+            Bearer:
+                type: apiKey
+                description: 'Value: Bearer {oauth2}'
+                name: Authorization
+                in: header
+        security:
+            - Bearer: []
+    areas:
+        path_patterns: # an array of regexps
+            - ^/api(?!/doc$)
+        host_patterns:
+            - ^api\.
